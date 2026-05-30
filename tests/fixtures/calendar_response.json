@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "evt-uvillage",
+      "summary": "U Village Things",
+      "start": {"dateTime": "2026-05-30T13:00:00-07:00"},
+      "end": {"dateTime": "2026-05-30T15:00:00-07:00"},
+      "location": "2746 NE 45th St, Seattle, WA 98105"
+    },
+    {
+      "id": "evt-monroe",
+      "summary": "Nosework Sniff and Go",
+      "start": {"dateTime": "2026-05-31T10:45:00-07:00"},
+      "end": {"dateTime": "2026-05-31T11:15:00-07:00"},
+      "location": "Monroe Bus Barn, 17815 W Main St, Monroe, WA 98272"
+    },
+    {
+      "id": "evt-rally",
+      "summary": "Rally Class",
+      "start": {"dateTime": "2026-06-01T13:30:00-07:00"},
+      "end": {"dateTime": "2026-06-01T14:30:00-07:00"},
+      "location": "West Seattle Wonder Dogs, 6040 California Ave SW, Seattle, WA 98136"
+    },
+    {
+      "id": "evt-virtual",
+      "summary": "Standup",
+      "start": {"dateTime": "2026-06-02T09:00:00-07:00"},
+      "end": {"dateTime": "2026-06-02T09:30:00-07:00"},
+      "hangoutLink": "https://meet.google.com/abc-defg-hij"
+    },
+    {
+      "id": "evt-wellsprings",
+      "summary": "Wellsprings-K9: Wellspringsk9 1 hr Licensed Massage/Rehabilitation and Swim Therar",
+      "start": {"dateTime": "2026-06-03T17:30:00-07:00"},
+      "end": {"dateTime": "2026-06-03T18:30:00-07:00"},
+      "location": "4116 25th Ave SW, Seattle, WA 98106"
+    },
+    {
+      "id": "evt-allday",
+      "summary": "Holiday",
+      "start": {"date": "2026-06-04"},
+      "end": {"date": "2026-06-05"}
+    }
+  ]
+}

@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+.aws-sam/
+infra/samconfig.toml
+.DS_Store
+

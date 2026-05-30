@@ -1,0 +1,12 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "calendar-digest"
+region = "us-west-2"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+parameter_overrides = """
+SecretsArn=arn:aws:secretsmanager:us-west-2:ACCOUNT_ID:secret:calendar-digest/keys-XXXXXX \
+UserEmail=you@example.com \
+SesIdentityArn=arn:aws:ses:us-west-2:ACCOUNT_ID:identity/you@example.com
+"""

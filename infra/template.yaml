@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Daily Google Calendar + WSDOT traffic email digest.
+
+Parameters:
+  SecretsArn:
+    Type: String
+    Description: ARN of the Secrets Manager secret holding all three credentials.
+  UserEmail:
+    Type: String
+    Description: Recipient + SES sender + Google Calendar impersonation subject.
+  SesIdentityArn:
+    Type: String
+    Description: ARN of the verified SES identity in us-west-2.
+  CalendarId:
+    Type: String
+    Default: primary
+  LookaheadDays:
+    Type: Number
+    Default: 7
+  AnthropicModel:
+    Type: String
+    Default: claude-sonnet-4-6
+  LogRetentionDays:
+    Type: Number
+    Default: 30
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [arm64]
+    MemorySize: 512
+    Timeout: 60
+
+Resources:
+  DigestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: src.handler.lambda_handler
+      Description: Builds and emails the daily calendar+traffic digest.
+      Environment:
+        Variables:
+          SECRETS_ARN: !Ref SecretsArn
+          USER_EMAIL: !Ref UserEmail
+          CALENDAR_ID: !Ref CalendarId
+          LOOKAHEAD_DAYS: !Ref LookaheadDays
+          TIMEZONE: America/Los_Angeles
+          ANTHROPIC_MODEL: !Ref AnthropicModel
+          LOG_LEVEL: INFO
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref SecretsArn
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: !Ref SesIdentityArn
+      Events:
+        DailyDigest:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: cron(0 5 * * ? *)
+            ScheduleExpressionTimezone: America/Los_Angeles
+
+  DigestLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DigestFunction}
+      RetentionInDays: !Ref LogRetentionDays
+
+  FailureTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Calendar Digest Failures
+
+  FailureSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref FailureTopic
+      Protocol: email
+      Endpoint: !Ref UserEmail
+
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Calendar digest Lambda errored on the most recent run.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DigestFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref FailureTopic
+
+Outputs:
+  DigestFunctionArn:
+    Value: !GetAtt DigestFunction.Arn
+  DigestFunctionName:
+    Value: !Ref DigestFunction
+  FailureTopicArn:
+    Value: !Ref FailureTopic
