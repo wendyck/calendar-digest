@@ -12,6 +12,7 @@ class Config:
     lookahead_days: int
     timezone: str
     anthropic_model: str
+    home_location: str
     log_level: str
 
 
@@ -23,6 +24,7 @@ def load_config() -> Config:
         lookahead_days=int(os.environ.get("LOOKAHEAD_DAYS", "7")),
         timezone=os.environ.get("TIMEZONE", "America/Los_Angeles"),
         anthropic_model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
+        home_location=os.environ.get("HOME_LOCATION", ""),
         log_level=os.environ.get("LOG_LEVEL", "INFO"),
     )
 

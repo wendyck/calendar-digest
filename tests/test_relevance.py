@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from src import relevance
+from src.relevance import _build_system_prompt
 from src.models import Alert, Event
 
 
@@ -47,6 +48,18 @@ def test_no_call_when_no_alerts():
         result = relevance.match_alerts_to_events("key", "claude-x", [_event("e1")], [])
         assert result == []
         client_cls.assert_not_called()
+
+
+def test_system_prompt_uses_home_location_when_provided():
+    prompt = _build_system_prompt("West Seattle, WA 98116")
+    assert "West Seattle, WA 98116" in prompt
+    assert "overnight-only" in prompt
+    assert "SR 18" in prompt
+
+
+def test_system_prompt_falls_back_when_blank():
+    prompt = _build_system_prompt("")
+    assert "Seattle area" in prompt
 
 
 def test_parses_tool_use_response():

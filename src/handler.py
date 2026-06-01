@@ -44,7 +44,10 @@ def lambda_handler(event, context):  # noqa: ARG001 - Lambda contract
     try:
         from .wsdot_client import fetch_alerts  # local import: keeps boto warm-path light
         alerts = fetch_alerts(wsdot_code, window_end)
-        matches = match_alerts_to_events(anthropic_key, config.anthropic_model, events, alerts)
+        matches = match_alerts_to_events(
+            anthropic_key, config.anthropic_model, events, alerts,
+            home_location=config.home_location,
+        )
     except (WSDOTUnavailableError, RelevanceUnavailableError) as exc:
         logger.warning("Traffic data unavailable: %s", exc)
         traffic_ok = False

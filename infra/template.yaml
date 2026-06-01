@@ -21,6 +21,10 @@ Parameters:
   AnthropicModel:
     Type: String
     Default: claude-sonnet-4-6
+  HomeLocation:
+    Type: String
+    Default: ""
+    Description: Optional starting address/area for the relevance prompt (e.g. "West Seattle, WA 98116"). Leave blank for a generic "Seattle area" fallback.
   LogRetentionDays:
     Type: Number
     Default: 30
@@ -47,6 +51,7 @@ Resources:
           LOOKAHEAD_DAYS: !Ref LookaheadDays
           TIMEZONE: America/Los_Angeles
           ANTHROPIC_MODEL: !Ref AnthropicModel
+          HOME_LOCATION: !Ref HomeLocation
           LOG_LEVEL: INFO
       Policies:
         - AWSLambdaBasicExecutionRole
