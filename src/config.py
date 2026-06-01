@@ -19,7 +19,7 @@ def load_config() -> Config:
     return Config(
         secrets_arn=_required("SECRETS_ARN"),
         user_email=_required("USER_EMAIL"),
-        calendar_id=os.environ.get("CALENDAR_ID", "primary"),
+        calendar_id=_required("CALENDAR_ID"),
         lookahead_days=int(os.environ.get("LOOKAHEAD_DAYS", "7")),
         timezone=os.environ.get("TIMEZONE", "America/Los_Angeles"),
         anthropic_model=os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6"),

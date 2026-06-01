@@ -14,7 +14,7 @@ Parameters:
     Description: ARN of the verified SES identity in us-west-2.
   CalendarId:
     Type: String
-    Default: primary
+    Description: Calendar to read (calendar ID, e.g. a secondary calendar shared with the impersonated user). No default — must be supplied. Do NOT use 'primary', which resolves to the impersonated user's own calendar.
   LookaheadDays:
     Type: Number
     Default: 7

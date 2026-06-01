@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 
 from .models import Event
 
-SCOPES = ["https://www.googleapis.com/auth/calendar.events.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 _VIRTUAL_HOSTS = ("meet.google.com", "zoom.us", "teams.microsoft.com", "webex.com")
 

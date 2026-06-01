@@ -19,7 +19,7 @@ This is a single-user personal project. Optimize for simplicity and reliability 
 
 ## External services
 
-1. **Google Calendar API** — service account with domain-wide delegation, impersonating the user. Scope: `https://www.googleapis.com/auth/calendar.events.readonly`.
+1. **Google Calendar API** — service account with domain-wide delegation, impersonating a Workspace user. Scope: `https://www.googleapis.com/auth/calendar.readonly`. (This is the broad read-only calendar scope, not the narrower `calendar.events.readonly`. It's required because the target calendar is a secondary calendar the impersonated user only has *reader* access to — see the Calendar configuration note below. This exact scope string must match in three places: this spec, `calendar_client.py`, and the Admin console domain-wide-delegation entry.)
 2. **WSDOT Traveler Information API** — Highway Alerts endpoint. Free access code required (request at https://wsdot.wa.gov/traffic/api/).
 3. **Anthropic API** — Claude is used for matching alerts to events. Model: `claude-sonnet-4-5` (or latest Sonnet at build time).
 
@@ -143,7 +143,7 @@ Reads from environment variables (set by the SAM template's `Environment.Variabl
 
 - `SECRETS_ARN` — ARN of the single Secrets Manager secret (`calendar-digest/keys`) holding all three credentials as a JSON object
 - `USER_EMAIL` — the user's email (recipient AND impersonated calendar user AND SES sender)
-- `CALENDAR_ID` — defaults to `primary`
+- `CALENDAR_ID` — the calendar to read. **Required (no default).** Typically the secondary calendar holding the events (see the calendar_client.py note). Do NOT default to `primary`, which resolves to the impersonated user's own nearly-empty calendar.
 - `LOOKAHEAD_DAYS` — defaults to `7`
 - `TIMEZONE` — defaults to `America/Los_Angeles`
 - `ANTHROPIC_MODEL` — defaults to `claude-sonnet-4-5`
@@ -176,8 +176,9 @@ def fetch_events(
 ) -> list[Event]: ...
 ```
 
-- Build credentials with `google.oauth2.service_account.Credentials.from_service_account_info(...).with_subject(user_email)`.
-- Scope: `https://www.googleapis.com/auth/calendar.events.readonly`.
+- Build credentials with `google.oauth2.service_account.Credentials.from_service_account_info(...).with_subject(user_email)`. The `with_subject` value is the **impersonated Workspace user**, which is NOT necessarily the same as the calendar being read — see next note.
+- Scope: `https://www.googleapis.com/auth/calendar.readonly` (must match the Admin console delegation entry exactly).
+- **Calendar configuration note**: `user_email` (the impersonation subject) and `calendar_id` (the calendar to read) are distinct. The events may live on a secondary calendar (e.g., a personal Gmail calendar shared into the Workspace user's account) that the impersonated Workspace user has reader access to, not on the impersonated user's own `primary`. So the call impersonates the Workspace user but reads `calendarId=<the-secondary-calendar-id>`. Do not collapse these two into one value, and do not default `calendar_id` to `primary` — `primary` resolves to the impersonated user's own (often empty) calendar and will return no events.
 - Build service: `googleapiclient.discovery.build('calendar', 'v3', credentials=creds, cache_discovery=False)` (cache_discovery=False is important in Lambda — avoids `oauth2client` warnings and filesystem writes).
 - Call `events().list(calendarId=..., timeMin=..., timeMax=..., singleEvents=True, orderBy='startTime', maxResults=250)`.
 - Convert each event to the `Event` dataclass.
@@ -464,7 +465,7 @@ Transform: AWS::Serverless-2016-10-31
 | `SecretsArn` | `String` | ARN of the single Secrets Manager secret (`calendar-digest/keys`) holding all three credentials as a JSON object |
 | `UserEmail` | `String` | The user's email — used as SES sender, SES recipient, and Google Calendar impersonation subject |
 | `SesIdentityArn` | `String` | ARN of the verified SES identity (e.g., `arn:aws:ses:us-west-2:ACCOUNT:identity/user@example.com`) |
-| `CalendarId` | `String` | Default: `primary` |
+| `CalendarId` | `String` | **Required, no default.** The secondary calendar holding events; do NOT pass `primary`. |
 | `LookaheadDays` | `Number` | Default: `7` |
 | `AnthropicModel` | `String` | Default: `claude-sonnet-4-5` |
 | `LogRetentionDays` | `Number` | Default: `30` |
@@ -652,10 +653,13 @@ The `fixtures/calendar_response.json` fixture should mirror the canonical exampl
 The README should walk through one-time setup, in this order:
 
 1. **Google Cloud setup**:
-   - Create a GCP project.
-   - Enable the Google Calendar API.
-   - Create a service account; generate a JSON key.
-   - In Google Workspace Admin → Security → Access and data control → API controls → Domain-wide delegation, authorize the service account's client ID with the scope `https://www.googleapis.com/auth/calendar.events.readonly`.
+   - Create a GCP project (or use an existing one).
+   - Enable the Google Calendar API on the project.
+   - Create a service account and generate a JSON key.
+     - **Org policy gotcha**: newer Workspace orgs enforce `iam.disableServiceAccountKeyCreation` (inherited from the org), which blocks key download. To create a key you must override this constraint for the project: as a Workspace super admin, first ensure your account holds both `roles/resourcemanager.organizationAdmin` and `roles/orgpolicy.policyAdmin` at the org node (grant via IAM scoped to the org — reach it through Manage Resources or the URL `console.cloud.google.com/iam-admin/iam?organizationId=<ORG_ID>` if the project picker hides the org). Then in IAM & Admin → Organization Policies, open the **legacy** `iam.disableServiceAccountKeyCreation` constraint, scope to the project, override the inherited policy, and set enforcement Off. Wait a few minutes for propagation, then download the JSON key. (Optional hygiene: remove `orgpolicy.policyAdmin` from your account afterward — it's only needed for this one-time toggle.)
+   - **Calendar sharing prerequisite**: if the events live on a personal Gmail calendar, that calendar must be shared to the impersonated Workspace user with at least "See all event details." This is what lets domain-wide delegation read it. Verify the calendar is visible by listing calendars (needs the `calendar.readonly` scope, which is the scope we use anyway).
+   - In Google Workspace Admin (admin.google.com, NOT the GCP console) → Security → Access and data control → API controls → Domain-wide delegation, authorize the service account's client ID with the scope `https://www.googleapis.com/auth/calendar.readonly`. The scope string must match the code exactly (a mismatch causes `403 unauthorized_client`), and domain-wide delegation changes can take up to ~20 minutes to propagate.
+   - **Verify before proceeding**: fill in the placeholders in `scripts/verify_calendar.py` (KEY_FILE, IMPERSONATE, CALENDAR_ID) and run it locally. Those placeholders are intentionally generic in the committed copy; the real values stay only on your machine. Seeing events confirms the whole chain (key + delegation + scope + calendar sharing) before any AWS work.
 2. **WSDOT API access**: request an access code at https://wsdot.wa.gov/traffic/api/.
 3. **Anthropic API key**: get from console.anthropic.com.
 4. **AWS Secrets Manager**: create one secret named `calendar-digest/keys` in `us-west-2`, as a single `SecretString` containing a JSON object with three snake_case keys:
