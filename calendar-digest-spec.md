@@ -352,7 +352,7 @@ This is the reference the email renderer should reproduce. It uses real example 
 
    ▌Friday, June 5
 
-   Haircut Appointment
+   Wellsprings-K9 — Licensed Massage / Rehab & Swim Therapy
    10:30 AM – 11:15 AM
    📍  2684 NE 49th St, Seattle, WA 98105
 
