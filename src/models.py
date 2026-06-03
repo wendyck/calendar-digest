@@ -28,21 +28,46 @@ class Alert:
 
 
 @dataclass
+class RedditPost:
+    id: str
+    title: str
+    body: str
+    posted_at: datetime
+    permalink: str
+
+
+SOURCE_WSDOT = "wsdot_alert"
+SOURCE_REDDIT = "reddit_post"
+
+
+@dataclass
 class RelevanceMatch:
     event_id: str
-    alert_id: str
+    source_type: str       # SOURCE_WSDOT or SOURCE_REDDIT
+    source_id: str         # alert.id or post.id
     note: str
+
+
+@dataclass
+class RenderedMatch:
+    """What the email renderer needs: the note text plus an optional source marker."""
+    note: str
+    source_marker: str = ""   # e.g. " (r/WSDOT)" — empty for default WSDOT-API alerts
 
 
 @dataclass
 class Digest:
     generated_at: datetime
     events: list[Event]
-    matches_by_event_id: dict[str, list[tuple[Alert, str]]] = field(default_factory=dict)
+    matches_by_event_id: dict[str, list[RenderedMatch]] = field(default_factory=dict)
     traffic_data_available: bool = True
 
 
 class WSDOTUnavailableError(RuntimeError):
+    pass
+
+
+class RedditUnavailableError(RuntimeError):
     pass
 
 

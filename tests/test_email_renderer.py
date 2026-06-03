@@ -45,7 +45,8 @@ def _canonical_digest(traffic_ok=True):
     alerts = [_alert("alert-monroe")]
     matches = [RelevanceMatch(
         event_id="monroe",
-        alert_id="alert-monroe",
+        source_type="wsdot_alert",
+        source_id="alert-monroe",
         note="Southbound I-405 weekend closure — plan extra time on the way home",
     )]
     return build_digest(events, alerts, matches, traffic_data_available=traffic_ok, now=now)
@@ -105,13 +106,35 @@ def test_day_with_no_events_omitted():
     assert "TOMORROW" not in text
 
 
+def test_reddit_sourced_flag_gets_marker():
+    now = datetime(2026, 5, 30, 5, tzinfo=TZ)
+    events = [_ev("monroe", 31, 10, "Nosework Sniff and Go", "Monroe, WA")]
+    from src.models import RedditPost
+    post = RedditPost(
+        id="reddit-1",
+        title="SB I-405 weekend closure",
+        body="full body",
+        posted_at=datetime(2026, 5, 29, tzinfo=TZ),
+        permalink="https://reddit.com/x",
+    )
+    matches = [RelevanceMatch(
+        event_id="monroe", source_type="reddit_post", source_id="reddit-1",
+        note="SB I-405 weekend closure on the way home",
+    )]
+    digest = build_digest(events, [], matches, True, now, reddit_posts=[post])
+    text = render_text(digest)
+    _, html = render_email(digest)
+    assert "SB I-405 weekend closure on the way home (r/WSDOT)" in text
+    assert "(r/WSDOT)" in html
+
+
 def test_multiple_warnings_per_event():
     now = datetime(2026, 5, 30, 5, tzinfo=TZ)
     events = [_ev("e", 30, 9)]
     alerts = [_alert("a1"), _alert("a2")]
     matches = [
-        RelevanceMatch(event_id="e", alert_id="a1", note="warning one"),
-        RelevanceMatch(event_id="e", alert_id="a2", note="warning two"),
+        RelevanceMatch(event_id="e", source_type="wsdot_alert", source_id="a1", note="warning one"),
+        RelevanceMatch(event_id="e", source_type="wsdot_alert", source_id="a2", note="warning two"),
     ]
     digest = build_digest(events, alerts, matches, True, now)
     text = render_text(digest)

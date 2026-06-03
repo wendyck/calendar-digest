@@ -72,8 +72,8 @@ def _render_text(digest: Digest) -> str:
             if not event.is_virtual and event.location:
                 lines.append(f"   📍 {event.location}")
             if digest.traffic_data_available:
-                for _alert, note in digest.matches_by_event_id.get(event.id, []):
-                    lines.append(f"   ⚠️  {note}")
+                for match in digest.matches_by_event_id.get(event.id, []):
+                    lines.append(f"   ⚠️  {match.note}{match.source_marker}")
             lines.append("")
         lines.append("")
 
@@ -133,10 +133,10 @@ def _render_html(digest: Digest) -> str:
                     f'<div style="color: #555; font-size: 14px;">📍 {escape(event.location)}</div>'
                 )
             if digest.traffic_data_available:
-                for _alert, note in digest.matches_by_event_id.get(event.id, []):
+                for match in digest.matches_by_event_id.get(event.id, []):
                     parts.append(
                         '<div style="color: #b04a00; font-size: 14px; margin-top: 4px;">'
-                        f'⚠️ {escape(note)}'
+                        f'⚠️ {escape(match.note)}{escape(match.source_marker)}'
                         "</div>"
                     )
             parts.append("</div>")

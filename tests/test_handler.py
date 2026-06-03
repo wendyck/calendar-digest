@@ -55,7 +55,7 @@ def test_handler_happy_path():
          patch.object(handler, "fetch_events", return_value=[_event()]), \
          patch("src.wsdot_client.fetch_alerts", return_value=[_alert()]), \
          patch.object(handler, "match_alerts_to_events",
-                      return_value=[RelevanceMatch("e1", "a1", "Watch I-405")]), \
+                      return_value=[RelevanceMatch("e1", "wsdot_alert", "a1", "Watch I-405")]), \
          patch.object(handler, "send_email", return_value="msg-id-123") as send:
         result = handler.lambda_handler({}, None)
 

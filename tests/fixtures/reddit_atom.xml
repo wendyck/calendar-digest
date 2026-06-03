@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <id>t3_aaa1</id>
+    <title>Heads up, Kirkland: SB I-405 closure from NE 124th St to NE 70th Pl (May 29-June 1)</title>
+    <updated>2030-05-28T15:42:59+00:00</updated>
+    <content type="html">&lt;p&gt;Why did the fish cross I-405? Well he hasn&amp;#39;t quite crossed yet. SB I-405 in Kirkland will close May 29-June 1 so crews can cut across a section of the freeway.&lt;/p&gt;</content>
+    <link href="https://www.reddit.com/r/Kirkland/comments/aaa1/foo"/>
+  </entry>
+  <entry>
+    <id>t3_aaa2</id>
+    <title>Heads up, Kirkland: SB I-405 closure from NE 124th St to NE 70th Pl (May 29-June 1)</title>
+    <updated>2030-05-28T15:46:36+00:00</updated>
+    <content type="html">&lt;p&gt;Crosspost duplicate body&lt;/p&gt;</content>
+    <link href="https://www.reddit.com/r/eastside/comments/aaa2/foo"/>
+  </entry>
+  <entry>
+    <id>t3_bbb1</id>
+    <title>Crosspost stub with no real body</title>
+    <updated>2030-05-28T16:00:00+00:00</updated>
+    <content type="html">&lt;table&gt;&lt;tr&gt;&lt;td&gt;&amp;#32; submitted by &amp;#32; &lt;a href="x"&gt;/u/wsdot&lt;/a&gt; [link] &amp;#32; [comments]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content>
+    <link href="https://www.reddit.com/r/u_wsdot/comments/bbb1/foo"/>
+  </entry>
+  <entry>
+    <id>t3_ccc1</id>
+    <title>Way old post outside the lookback window</title>
+    <updated>2025-01-01T00:00:00+00:00</updated>
+    <content type="html">&lt;p&gt;This should be filtered out by the cutoff date.&lt;/p&gt;</content>
+    <link href="https://www.reddit.com/r/Seattle/comments/ccc1/foo"/>
+  </entry>
+</feed>

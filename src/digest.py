@@ -2,7 +2,17 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from .models import Alert, Digest, Event, RelevanceMatch
+from .models import (
+    Alert,
+    Digest,
+    Event,
+    RedditPost,
+    RelevanceMatch,
+    RenderedMatch,
+    SOURCE_REDDIT,
+)
+
+REDDIT_MARKER = " (r/WSDOT)"
 
 
 def build_digest(
@@ -11,14 +21,24 @@ def build_digest(
     matches: list[RelevanceMatch],
     traffic_data_available: bool,
     now: datetime,
+    reddit_posts: list[RedditPost] | None = None,
 ) -> Digest:
     alerts_by_id = {a.id: a for a in alerts}
-    matches_by_event: dict[str, list[tuple[Alert, str]]] = {}
+    posts_by_id = {p.id: p for p in (reddit_posts or [])}
+
+    matches_by_event: dict[str, list[RenderedMatch]] = {}
     for m in matches:
-        alert = alerts_by_id.get(m.alert_id)
-        if alert is None:
-            continue
-        matches_by_event.setdefault(m.event_id, []).append((alert, m.note))
+        if m.source_type == SOURCE_REDDIT:
+            if m.source_id not in posts_by_id:
+                continue
+            marker = REDDIT_MARKER
+        else:
+            if m.source_id not in alerts_by_id:
+                continue
+            marker = ""
+        matches_by_event.setdefault(m.event_id, []).append(
+            RenderedMatch(note=m.note, source_marker=marker)
+        )
 
     sorted_events = sorted(events, key=lambda e: e.start)
     return Digest(
