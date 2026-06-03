@@ -1,6 +1,6 @@
 -r requirements.txt
-pytest>=8.0.0
+pytest>=8.4.2
 pytest-cov>=5.0.0
-moto[ses,secretsmanager]>=5.0.0
-responses>=0.25.0
-python-dotenv>=1.0.0
+moto[ses,secretsmanager]>=5.2.1
+responses>=0.26.1
+python-dotenv>=1.2.2
