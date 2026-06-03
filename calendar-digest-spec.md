@@ -347,28 +347,15 @@ This is the reference the email renderer should reproduce. It uses real example 
 
    Pilates
    9:00 AM – 10:00 AM
-   📍 6521 California Ave SW, Seattle, WA 98136
-
-
-   ▌Wednesday, June 3
-
-   Wellsprings-K9 — Licensed Massage / Rehab & Swim Therapy
-   5:30 PM – 6:30 PM
-   📍 4116 25th Ave SW, Seattle, WA 98106
+   📍 2601 76th Ave SE Ste. 103, Mercer Island, WA 98040
 
 
    ▌Friday, June 5
 
    Haircut Appointment
    10:30 AM – 11:15 AM
-   📍 6021A California Ave SW, Seattle, WA 98136
+   📍  2684 NE 49th St, Seattle, WA 98105
 
-
-   ▌Saturday, June 6
-
-   Nosework
-   4:00 PM – 5:15 PM
-   📍 Dog's Day Out Training Center South, 15227 Ambaum Blvd SW, Burien, WA 98166
 
    ──────────────────────────────────
    Generated 5:00 AM, Sat May 30
