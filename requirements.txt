@@ -1,5 +1,5 @@
-anthropic>=0.105.2
-boto3>=1.43.21
-google-api-python-client>=2.197.0
-google-auth>=2.53.0
+anthropic>=0.116.0
+boto3>=1.43.42
+google-api-python-client>=2.198.0
+google-auth>=2.55.2
 requests>=2.34.2
